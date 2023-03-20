@@ -1,15 +1,17 @@
 import { arraySum } from "../utils/sum";
+import { InputNode } from "./input-node";
 import { NeuronNode } from "./node";
+import { OutputNode } from "./out-put-node";
 
 export interface NeuronLinkArgs {
-    fromNeuron: NeuronNode;
-    toNeuron: NeuronNode;
+    fromNeuron: NeuronNode | InputNode;
+    toNeuron: NeuronNode | OutputNode;
     weight: number;
 }
 
 export class NeuronLink {
-    fromNeuron: NeuronNode;
-    toNeuron: NeuronNode;
+    fromNeuron: NeuronNode | InputNode;
+    toNeuron: NeuronNode | OutputNode;
 
     weight: number;
 
