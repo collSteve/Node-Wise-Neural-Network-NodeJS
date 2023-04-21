@@ -109,6 +109,10 @@ export class NeuronNode {
         this.bias += arraySum(this.deltaStorage.biasDeltas);
     }
 
+    calculateOutputA(weights: number[], fromNeuronsOutputAs: number[]) {
+        this.outputA = this.computationFunction(weights, fromNeuronsOutputAs, this.bias);
+    }
+
     get allOutputEdgesErrorCalculated(): boolean {
         for (const edge of this.outputEdges) {
             if (edge.deltaError == null) {
@@ -133,4 +137,6 @@ export class NeuronNode {
         }
         return inputAs;
     }
+
+
 }

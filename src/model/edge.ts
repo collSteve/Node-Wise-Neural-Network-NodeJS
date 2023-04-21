@@ -3,14 +3,14 @@ import { InputNode } from "./input-node";
 import { NeuronNode } from "./node";
 import { OutputNode } from "./out-put-node";
 
-export interface NeuronLinkArgs {
-    fromNeuron: NeuronNode | InputNode;
+export interface NeuronLinkArgs<T extends NeuronLink = NeuronLink> {
+    fromNeuron: NeuronNode | InputNode<T>;
     toNeuron: NeuronNode | OutputNode;
     weight: number;
 }
 
 export class NeuronLink {
-    fromNeuron: NeuronNode | InputNode;
+    fromNeuron: NeuronNode | InputNode<NeuronLink>;
     toNeuron: NeuronNode | OutputNode;
 
     weight: number;

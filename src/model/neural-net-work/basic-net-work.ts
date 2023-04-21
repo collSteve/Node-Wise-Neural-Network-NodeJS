@@ -1,4 +1,5 @@
 import { ActivationFunctions } from "../../constants/activation-functions";
+import { Queue } from "../../utils/queue";
 import { uuid } from "../../utils/uuid";
 import { NeuronLink, NeuronLinkArgs } from "../edge";
 import { InputNode, InputNodeArgs } from "../input-node";
@@ -20,7 +21,7 @@ interface BasicEdgeArgs extends NeuronLinkArgs {
     edgeType?: BasicEdgeType;
 }
 
-interface BasicInputNodeArgs extends InputNodeArgs {
+interface BasicInputNodeArgs extends InputNodeArgs<BasicEdge> {
     id: string
 }
 
@@ -29,7 +30,7 @@ interface BasicOutputNodeArgs extends OutputNodeArgs {
 }
 
 interface BasicNetWorkArgs {
-    inputNodes?: InputNode[];
+    inputNodes?: InputNode<BasicEdge>[];
     inputNodeNumbers?: number;
     outputNodeNumbers?: number;
     setupGraph?: boolean;
@@ -59,7 +60,7 @@ export class BasicEdge extends NeuronLink {
     }
 }
 
-export class BasicInputNode extends InputNode {
+export class BasicInputNode extends InputNode<BasicEdge> {
     id: string;
 
     constructor(args: BasicInputNodeArgs) {
@@ -68,7 +69,7 @@ export class BasicInputNode extends InputNode {
         this.id = args.id;
     }
 
-    static toBasicInputNode(inputNode: InputNode, id: string) {
+    static toBasicInputNode(inputNode: InputNode<BasicEdge>, id: string) {
         return new BasicInputNode({outputEdges: inputNode.outputEdges, id});
     }
 }
@@ -143,5 +144,63 @@ export class BasicNetWork {
                 this.edgesMap.set(edgeId, newEdge);
             }
         }
+    }
+
+    forwardPropergation() {
+        const nodeQ = new Queue<BasicInputNode | BasicNode | BasicOutputNode>();
+
+        // push in all input nodes
+        for (const [id, inputNode] of this.inputNodesMap) {
+            nodeQ.enqueue(inputNode);
+        }
+
+        while (!nodeQ.isEmpty) {
+            const node = nodeQ.dequeue();
+            if (!node) return; // not gonna happen but to convert type
+
+            if (node.outputA != null) {
+                if (!(node instanceof BasicOutputNode)) {
+                    for (const outputEdge of node.outputEdges) {
+                        nodeQ.enqueue(outputEdge.toNeuron as (BasicNode | BasicOutputNode));
+                    }
+                }
+            } 
+            else {
+                // can't be input node cuz input node always have outputA
+                if (node instanceof BasicInputNode || node instanceof BasicOutputNode) {
+                    throw new Error("Cannot be inputNode");
+                }
+
+                // check if from nodes are calculated, if so calculate this node. else, enqueue back this node 
+                let areFromNodesCalculated = this.#areFromNodesCalculated(node.inputEdges);
+                
+                if (areFromNodesCalculated) {
+                    const outputAs: number[] = [];
+                    const weights: number[] = [];
+                    for (const edge of node.inputEdges) {
+                        outputAs.push(edge.fromNeuron.outputA as number);
+                        weights.push(edge.weight);
+                    }
+                    node.calculateOutputA(weights, outputAs);
+
+                    for (const outputEdge of node.outputEdges) {
+                        nodeQ.enqueue(outputEdge.toNeuron as (BasicNode | BasicOutputNode));
+                    }
+                }
+                else {
+                    nodeQ.enqueue(node);
+                }
+            }
+            
+        }
+    }
+
+    #areFromNodesCalculated(inputEdges: NeuronLink[]): boolean {
+        for (const edge of inputEdges) {
+            if (edge.fromNeuron.outputA == null) {
+                return false;
+            }
+        }
+        return true;
     }
 }
