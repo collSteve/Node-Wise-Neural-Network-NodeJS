@@ -24,4 +24,6 @@ export function startNeural1() {
     for (const [id,outputNode] of network.outputNodesMap) {
         console.log(`${id}-->[${outputNode.outputEdges.map((edge)=>(edge.toNeuron as BasicNode | BasicOutputNode).id)}]`);
     }
+
+    
 }

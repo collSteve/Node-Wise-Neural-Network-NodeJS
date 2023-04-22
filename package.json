@@ -12,6 +12,7 @@
   "author": "Ke Ren",
   "license": "ISC",
   "dependencies": {
+    "d3": "^7.8.4",
     "express": "^4.18.1"
   },
   "devDependencies": {
