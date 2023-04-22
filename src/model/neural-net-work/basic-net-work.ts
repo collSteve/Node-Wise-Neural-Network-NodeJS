@@ -133,8 +133,8 @@ export class BasicNetWork {
                 const edgeId = uuid();
 
                 const newEdge = new BasicEdge({id: edgeId, fromNeuron: inputNode, toNeuron: firstNode, weight: 0});
-
-                this.edgesMap.set(edgeId, newEdge);
+                
+                this.registerEdge(newEdge);
             }
 
             for (const [id, outputNode] of this.outputNodesMap.entries()) {
@@ -142,9 +142,15 @@ export class BasicNetWork {
 
                 const newEdge = new BasicEdge({id: edgeId, fromNeuron: firstNode, toNeuron: outputNode, weight: 0});
 
-                this.edgesMap.set(edgeId, newEdge);
+                this.registerEdge(newEdge);
             }
         }
+    }
+
+    registerEdge(edge: BasicEdge) {
+        edge.fromNeuron.outputEdges.push(edge);
+        edge.toNeuron.inputEdges.push(edge);
+        this.edgesMap.set(edge.id, edge);
     }
 
     forwardPropergation() {
