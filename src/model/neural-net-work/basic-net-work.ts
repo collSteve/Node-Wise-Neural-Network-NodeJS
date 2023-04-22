@@ -3,7 +3,7 @@ import { Queue } from "../../utils/queue";
 import { uuid } from "../../utils/uuid";
 import { NeuronLink, NeuronLinkArgs } from "../edge";
 import { InputNode, InputNodeArgs } from "../input-node";
-import { NeuronNode, NeuronNodeArgs } from "../node";
+import { ActivationInfo, NeuronNode, NeuronNodeArgs } from "../node";
 import { OutputNode, OutputNodeArgs } from "../out-put-node";
 
 enum BasicEdgeType {
@@ -34,6 +34,7 @@ interface BasicNetWorkArgs {
     inputNodeNumbers?: number;
     outputNodeNumbers?: number;
     setupGraph?: boolean;
+    defaultOutputNodeActivationInfo: ActivationInfo
 }
 
 export class BasicNode extends NeuronNode {
@@ -113,7 +114,7 @@ export class BasicNetWork {
         if (args.outputNodeNumbers) {
             for (let i=0; i< args.outputNodeNumbers; i++) {
                 const id = uuid();
-                this.outputNodesMap.set(id, new BasicOutputNode({id: id}));
+                this.outputNodesMap.set(id, new BasicOutputNode({id: id, activationInfo: args.defaultOutputNodeActivationInfo}));
             }
         }
 
@@ -167,7 +168,7 @@ export class BasicNetWork {
             } 
             else {
                 // can't be input node cuz input node always have outputA
-                if (node instanceof BasicInputNode || node instanceof BasicOutputNode) {
+                if (node instanceof BasicInputNode) {
                     throw new Error("Cannot be inputNode");
                 }
 
