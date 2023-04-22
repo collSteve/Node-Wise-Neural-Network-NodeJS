@@ -2,6 +2,7 @@ import { Express } from "express";
 import { debug } from "console";
 import http from "http";
 import expressApp from "./expressApp";
+import { startNeural1 } from "./neural-1";
 
 // import { Post, PostsGetRequestResponseObject } from "../models/post.model";
 
@@ -16,16 +17,6 @@ export default class Server {
 
     this.expressApp.set("port", this.port);
     this.httpServer = http.createServer(this.expressApp);
-
-    //test
-    // setInterval(()=>{
-    //   console.log("======Games Log=======");
-    //   const gameService = GameService.getInstance();
-    //   const games = gameService.getAllGames();
-    //   for (const [gameId, game] of games.entries()) {
-    //     console.log(`GameID: ${gameId}: ${gameService.getAllUserIdsInGame(gameId)}`);
-    //   }
-    // }, 10000);
   }
 
   public start() {
@@ -35,6 +26,8 @@ export default class Server {
     this.httpServer.on("listening", () => this.onListening());
 
     this.httpServer.listen(this.port);
+
+    startNeural1();
   }
 
   public getHttpServer() {
